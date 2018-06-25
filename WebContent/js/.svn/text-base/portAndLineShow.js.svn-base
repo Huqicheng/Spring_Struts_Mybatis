@@ -1,0 +1,100 @@
+if(typeof(com)=="undefined"){
+	var com=new Object();
+}
+if(typeof(com.ssd)=="undefined"){
+	com.ssd = new Object();
+}
+com.ssd.util=function(ssdsetting){
+		//初始化地图对象 
+	   	this.map=new TMap(ssdsetting.id); 
+	   	//设置显示地图的中心点和级别 
+		this.map.centerAndZoom(new TLngLat(ssdsetting.center.lng,ssdsetting.center.lat),ssdsetting.zoom);
+		this.map.enableHandleMouseScroll(); 
+		var control = new TMapTypeControl();  
+           //将地图类型控件添加到地图上  
+        this.map.addControl(control);  
+ //          //设置地图类型控件在地图上显示的位置，默认为在右侧，注：将控件加载到map之后再做此配置  
+        control.setLeft(100);  
+        control.setTop(20);  
+
+        var config = {  
+
+            type:"TMAP_NAVIGATION_CONTROL_LARGE",   //缩放平移的显示类型  
+
+            anchor:"TMAP_ANCHOR_TOP_LEFT",          //缩放平移控件显示的位置  
+            offset:[0,0],                           //缩放平移控件的偏移值  
+            showZoomInfo:true                       //是否显示级别提示信息，true表示显示，false表示隐藏。  
+        };  
+        //创建缩放平移控件对象  
+        control=new TNavigationControl(config);  
+        //添加缩放平移控件  
+        this.map.addControl(control);  
+		this.allTMarker = [];
+		this.allTlabel = [];
+		this.allTPolyline = [];
+	
+}
+com.ssd.util.prototype.getMap = function(){
+	return this.map;
+}
+com.ssd.util.prototype.addTMarker = function(setting){
+	 var icon = new TIcon(setting.imgUrl,new TSize(setting.size.width,setting.size.height),{anchor:new TPixel(setting.TPixel.top,setting.TPixel.left)}); 
+	 var marker = new TMarker(new TLngLat(setting.lng,setting.lat),{icon:icon});
+	 marker.setTitle(setting.title);
+	 this.map.addOverLay(marker); 
+	 var ssdMarker = {
+		 keyid:setting.keyid,
+		 marker:marker
+	 };
+	 this.allTMarker.push(ssdMarker);
+	 return ssdMarker;
+}
+
+com.ssd.util.prototype.addMoveTMarker = function(setting){
+	 var icon = new TIcon(setting.imgUrl,new TSize(setting.size.width,setting.size.height),{anchor:new TPixel(setting.TPixel.top,setting.TPixel.left)}); 
+	  moveMarker = new TMarker(new TLngLat(setting.lng,setting.lat),{icon:icon});
+	 this.map.addOverLay(moveMarker); 
+}
+
+com.ssd.util.prototype.removeMoveMarker = function(setting){
+	 this.map.removeOverLay(moveMarker); 
+}
+
+com.ssd.util.prototype.addTPolyline = function(setting){
+	var line = new TPolyline(setting.points,setting.TPolylineOptions); 
+	this.map.addOverLay(line);
+	if(setting.listener.length>0){
+		for(var i = 0;i<setting.listener.length;i++){
+			TEvent.addListener(line,setting.listener[i].eventName,setting.listener[i].eventFunc); 
+		}
+	}
+	
+	var ssdLine = {
+		 keyid:setting.keyid,
+		 line:line
+	}
+	 this.allTPolyline.push(ssdLine);
+	return ssdLine;
+	 
+}
+
+com.ssd.util.prototype.addTLabel = function(setting){
+	var labelConfig = {
+		text:setting.text,
+		offset:new TPixel(setting.TPixel.top,setting.TPixel.left),
+		position:new TLngLat(setting.lat,setting.lng)
+	};
+	var label = new TLabel(labelConfig);
+		label.setBorderLine(setting.borderLine);
+		label.setOpacity(setting.opacity);
+		label.setFontColor(setting.fontColor);
+	this.map.addOverLay(label);
+	var ssdLabel = {
+		 keyid:setting.keyid,
+		 label:label
+	}
+	this.allTlabel.push(ssdLabel);
+	return ssdLabel;
+	 
+}
+
